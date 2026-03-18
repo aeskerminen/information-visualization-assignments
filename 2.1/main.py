@@ -1,19 +1,33 @@
-from urllib.request import urlopen
 import json
-with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-    counties = json.load(response)
-
 import pandas as pd
-df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/fips-unemp-16.csv",
-                   dtype={"fips": str})
-
 import plotly.express as px
 
-fig = px.choropleth(df, geojson=counties, locations='fips', color='unemp',
-                           color_continuous_scale="Viridis",
-                           range_color=(0, 12),
-                           scope="usa",
-                           labels={'unemp':'unemployment rate'}
+countries = json.load(open("./globe.geo.json"))
+df = pd.read_csv("youth_unemployment_globally_2025.csv",
+                   na_values=[".."])
+
+midpoint = df["unemployment"].median()
+
+fig = px.choropleth(df, geojson=countries, locations='Country Code',
+                           featureidkey="properties.iso_a3",
+                           color='unemployment',
+                           color_continuous_scale="reds",
+                           color_continuous_midpoint=midpoint,
+                           range_color=(0, 80),
+                           scope="world",
+                           labels={'unemployment':'Youth unemployment rate (%)'}
                           )
+
+
+#fig = px.choropleth(df, geojson=countries, locations='Country Code',
+ #                          featureidkey="properties.iso_a3",
+  #                         color='unemployment',
+    #                       color_continuous_scale="rdylgn_r",
+   #                        color_continuous_midpoint=midpoint,
+     #                      range_color=(0, 80),
+       #                    scope="world",
+      #                     labels={'unemployment':'Youth unemployment rate (%)'}
+        #                  )
+
 fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 fig.show()
